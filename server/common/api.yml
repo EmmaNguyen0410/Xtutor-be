@@ -1,0 +1,503 @@
+swagger: "2.0"
+
+info:
+  version: 1.0.0
+  title: backend
+  description: x-tutor APIs
+
+basePath: /api
+
+tag: 
+- name: "auth"
+  description: "Everything about sign up and sign in"
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+definitions:
+  updateRef:
+    type: object
+    properties:
+      major:
+        type: string
+  loginInfo:
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+  newAccount:
+    type: object
+    required:
+    - role
+    - first_name
+    - last_name
+    - email
+    - phone_num
+    - password
+    - gender_name
+    properties:
+      role:
+        type: string
+      first_name:
+        type: string
+      last_name:
+          type: string
+      email:
+        type: string
+      phone_num:
+        type: string
+      password:
+        type: string
+      gender_name:
+        type: string
+      profile_picture:
+        type: string
+  updateInfo:
+    type: object
+    required:
+    - major
+    properties:
+      about_me: 
+        type: string
+      major:
+        type: array
+        items:
+          type: string
+      certificate:
+        type: array
+        items:
+          type: string
+      id:
+        type: string
+      institute:
+        type: array
+        items:
+          type: string
+  experience:
+    type: object
+    required:
+    - id
+    - experiences
+    properties:
+      id:
+        type: string
+      experiences:
+        type: array
+        items:
+          type: object
+  teaching_sub:
+    type: object
+    required:
+    - id
+    - teaching_subs
+    properties:
+      id:
+        type: string
+      teaching_subs:
+        type: array
+        items:
+          type: object
+  feedback:
+    type: object
+    required:
+    - id
+    - feedbacks
+    properties:
+      id:
+        type: string
+      feedbacks:
+        type: array
+        items:
+          type: object
+  tutor_id:
+    type: object
+    required:
+    - id
+    properties:
+      id:
+        type: string 
+  tutor_filter:
+    type: object
+    properties:
+      academic_level:
+        type: string
+      subject:
+        type: string 
+      academic_grade:
+        type: string
+  newClass:
+    type: object
+    required:
+    - tutor_id
+    - student_id
+    - subject
+    - sessions
+    - hourly_rate
+    properties:
+      sessions:
+        type: array
+        items:
+          type: object
+      tutor_id:
+        type: string
+      student_id:
+        type: string
+      subject:
+        type: string 
+      hourly_rate:
+        type: number
+  userInfo:
+    type: object
+    properties:
+      academic_level_name:
+        type: string
+      # account_number:
+      #   type: string
+      address:
+        type: string
+      # bank_name:
+      #   type: string 
+      date_of_birth:
+        type: string
+      first_name:
+        type: string
+      gender_name:
+        type: string
+      last_name:
+        type: string
+      # country_name:
+      #   type: string
+      # language_name:
+      #   type: string
+      # city_name:
+      #   type: string
+      nationality_name:
+        type: string
+      # no_passport:
+      #   type: string
+      postal_code:
+        type: string
+      # profile_picture:
+      #   type: string
+      payment_method:
+        type: string
+      paypal_email:
+        type: string
+      # phone_code:
+      #   type: string
+      phone_number:
+        type: integer
+  free_time:
+    type: object
+    required:
+    - free_time
+    properties:
+      free_time:
+        type: array
+        items:
+          type: object
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      description: Register new account
+      parameters:
+       - name: info
+         in: body
+         require: true
+         description: User object that needs to be added to the user db
+         schema: 
+           $ref: "#/definitions/newAccount"
+      respond:
+        - 200:
+          description: Register success
+        - 405:
+          description: Invalid input
+
+  /auth/login:
+    post:
+      tags:
+        - auth
+      description: user login
+      parameters:
+        - name: account
+          in: body
+          require: true
+          description: user account
+          schema: 
+            $ref: "#/definitions/loginInfo"
+      respond:
+        - 200: 
+            description: return token
+        - 401:
+            description: email or password incorrect
+
+  /auth/logout:
+    get:
+      tags:
+        - auth
+      description: logout
+      paramenters:
+        - name: token
+          in: query
+          description: token to be disabled
+          schema:
+            type: string
+  /user:
+    put:
+      tags:
+        - user
+      description:
+        - get users profile
+      parameters:
+        - account:
+          in: body
+          require: true
+          description: update info user
+          schema: 
+            $ref: "#/definitions/userInfo"    
+      respond:
+        200: get all users      
+  /user/tutor:
+    get:
+      tags:
+        - tutor
+      description: get all tutors
+      respond:
+        - 404:
+          description: no turors
+
+  /user/tutor/update_free_time/{id}:  
+    put:
+      tags:
+        - tutor
+      description: update tutor's freetime
+      parameters:
+        - name : id
+          in : path
+          description: tutor's id
+          type: string
+        - name: free_time
+          in: body
+          require: true
+          description: update freetime
+          schema: 
+            $ref: "#/definitions/free_time"
+      respond:
+        - 200: 
+            description: go to user's page
+        - 401:
+            description: email or password incorrect
+
+  /user/student/{id}:
+    get:
+      tags:
+      - student
+      description: return 1 student
+      parameters:
+        - name: id
+          in: path
+          description: student id
+          type: string
+      respond:
+        - 404:
+          description: no student
+
+  /user/tutor/update_reference:
+    put:
+      tags:
+      - tutor
+      description: update student
+      parameters:
+        - account:
+          in: body
+          require: true
+          description: update info
+          schema: 
+            $ref: "#/definitions/updateInfo"
+      respond:
+        - 200: 
+            description: go to user's page
+        - 401:
+            description: email or password incorrect
+
+  /user/tutor/update_experience:
+    put:
+      tags:
+      - tutor
+      description: update tutor experience
+      parameters:
+        - name: experience
+          in: body
+          require: true
+          description: new experience info
+          schema: 
+            $ref: "#/definitions/experience"
+      respond:
+        - 200: 
+            description: go to user's page
+        - 401:
+            description: email or password incorrect
+
+  /user/tutor/update_teaching_sub:
+    put:
+      tags:
+      - tutor
+      description: update tutor teaching subject
+      parameters:
+        - name: teaching_subject
+          in: body
+          require: true
+          description: new teaching subject info
+          schema: 
+            $ref: "#/definitions/teaching_sub"
+      respond:
+        - 200: 
+            description: go to user's page
+        - 401:
+            description: email or password incorrect
+
+  /user/tutor/update_feedback:
+    put:
+      tags:
+      - tutor
+      description: update tutor feedback
+      parameters:
+        - account:
+          in: body
+          require: true
+          description: update feedback
+          schema: 
+            $ref: "#/definitions/feedback"
+      respond:
+        - 200: 
+            description: go to user's page
+        - 401:
+            description: email or password incorrect
+
+  /class/{id}:
+    tags:
+      - class
+    get:
+      description: get one class
+      parameters:
+        - name: id
+          in: path
+          description: class id
+          type: string
+    delete:
+      description: get one class
+      parameters:
+        - name: id
+          in: path
+          description: class id
+          type: string
+
+  /class/tutor/all/{tutor_id}:
+    tags:
+      - class
+    get:
+      description: find tutor's classes
+    parameters:
+      - name: tutor_id
+        in: path
+        description: class id
+        type: string
+
+  /user/tutor/{id}:
+    get:
+      tags:
+      - tutor
+      description: get tutor detail
+      parameters:
+        - name : id
+          in: path
+          require: true
+          description: tutor's id
+          type: string
+      respond:
+        - 200: 
+            description: go to user's page
+        - 401:
+            description: email or password incorrect
+
+  /user/tutor/filter:
+    post:
+      tags:
+      - tutor
+      description: filter tutor
+      parameters:
+        - name: condition
+          in: body
+          require: true
+          description: filter condition
+          schema: 
+            $ref: "#/definitions/tutor_filter"
+      respond:
+        - 200: 
+            description: go to user's page
+        - 401:
+            description: email or password incorrect
+
+  /class:
+    post:
+      tags:
+        - class
+      description: book new class
+      parameters:
+       - name: info
+         in: body
+         require: true
+         description: infomation of new class booked by student
+         schema: 
+           $ref: "#/definitions/newClass"
+      respond:
+        - 200:
+          description: Class success
+        - 405:
+          description: Invalid info
+
+  /class/student/{student_id}:
+    get:
+      tags:
+        - class
+      description: get classes of student
+      parameters:
+        - name: student_id
+          in: path
+          type: string
+          description: student id to get his/her classes
+      response:
+        - 200:
+          description: Class success
+        - 405:
+          description: Invalid info
+
+  /class/tutor/{tutor_id}:
+    get:
+      tags:
+        - class
+      description: get classes and freetime of tutor
+      parameters:
+        - name: tutor_id
+          in: path
+          type: string
+          description: tutor id to get his/her classes
+      response:
+        - 200:
+          description: Class success
+        - 405:
+          description: Invalid info
+
+  
+      
+
